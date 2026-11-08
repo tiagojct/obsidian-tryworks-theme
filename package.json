@@ -1,0 +1,13 @@
+{
+  "name": "tryworks",
+  "private": true,
+  "description": "Development tools for the Tryworks Obsidian theme",
+  "scripts": {
+    "lint": "stylelint theme.css",
+    "fix": "stylelint --fix theme.css"
+  },
+  "devDependencies": {
+    "stylelint": "^17.0.0",
+    "stylelint-config-obsidianmd": "^0.1.0"
+  }
+}

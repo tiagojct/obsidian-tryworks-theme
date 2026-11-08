@@ -1,0 +1,54 @@
+name: Release Obsidian theme
+
+# Push a tag that equals the version in manifest.json (for example 1.0.1).
+# The job checks the tag, lints theme.css with the rules the directory review
+# uses, attests the two files and creates a draft release with them.
+# Publish the draft on GitHub after adding release notes.
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check tag matches manifest version
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          version="$(python3 -c 'import json; print(json.load(open("manifest.json"))["version"])')"
+          if [ "$tag" != "$version" ]; then
+            echo "Tag $tag does not match manifest.json version $version"
+            exit 1
+          fi
+          test -s theme.css
+
+      - name: Lint theme.css
+        run: |
+          npm install --no-audit --no-fund
+          npx stylelint theme.css
+
+      - name: Attest release files
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            theme.css
+            manifest.json
+
+      - name: Create draft release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          gh release create "$tag" \
+            --title="$tag" \
+            --generate-notes \
+            --draft \
+            manifest.json theme.css
