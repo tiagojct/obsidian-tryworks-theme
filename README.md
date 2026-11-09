@@ -51,10 +51,17 @@ Select the scheme with the [Style Settings](https://github.com/obsidian-communit
 ## Style Settings options
 
 - Readable line width.
+- Text font: Literata or Atkinson Hyperlegible Next.
+- Heading font: the text font, Literata or Atkinson Hyperlegible Next.
+- Space above and below headings.
+- Lining figures instead of oldstyle figures.
 - Reading mode: larger type, wider leading and a 36rem measure.
 - No rule above second-level headings.
 - Plain note header: the note path in the interface font.
 - Light code blocks instead of the ink command block.
+- Callout titles in normal letters instead of small capitals.
+- Chevrons on folders instead of the index marks.
+- A filled background on the chosen file instead of the accent underline.
 
 ## Accessibility
 

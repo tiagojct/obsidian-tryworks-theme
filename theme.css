@@ -52,6 +52,50 @@ settings:
     max: 70
     step: 1
     format: rem
+  - id: tryworks-text-font
+    title: Text font
+    description: The font of the note text. Obsidian's own font settings still win.
+    type: class-select
+    allowEmpty: false
+    default: tryworks-text-serif
+    options:
+      - label: Literata (serif)
+        value: tryworks-text-serif
+      - label: Atkinson Hyperlegible Next (sans)
+        value: tryworks-text-sans
+  - id: tryworks-heading-font
+    title: Heading font
+    type: class-select
+    allowEmpty: false
+    default: tryworks-headings-text
+    options:
+      - label: Same as the text
+        value: tryworks-headings-text
+      - label: Literata (serif)
+        value: tryworks-headings-serif
+      - label: Atkinson Hyperlegible Next (sans)
+        value: tryworks-headings-sans
+  - id: tryworks-heading-above
+    title: Space above headings
+    description: In paragraph spaces, in reading view. The editor scales in proportion.
+    type: variable-number-slider
+    default: 2.5
+    min: 1
+    max: 4
+    step: 0.25
+  - id: tryworks-heading-below
+    title: Space below headings
+    description: Extra space under each heading, in em of the heading size
+    type: variable-number-slider
+    default: 0.35
+    min: 0
+    max: 1
+    step: 0.05
+    format: em
+  - id: tryworks-lining-figures
+    title: Lining figures
+    description: Figures at cap height in the text, in place of oldstyle figures
+    type: class-toggle
   - id: tryworks-reading
     title: Reading mode
     description: Larger type, wider leading and a 36rem measure, as in the Sub-Sub notes pane
@@ -72,6 +116,23 @@ settings:
   - id: tryworks-code-plain
     title: Light code blocks
     description: Set code blocks on the sunk field instead of the ink command block
+    type: class-toggle
+  - id: tryworks-callout-plain
+    title: Plain callout titles
+    description: Callout titles in normal letters instead of small capitals
+    type: class-toggle
+  - id: tryworks-navigation
+    title: Navigation
+    type: heading
+    level: 2
+    collapsed: true
+  - id: tryworks-nav-chevrons
+    title: Chevrons on folders
+    description: Show Obsidian's chevrons instead of the solid index marks
+    type: class-toggle
+  - id: tryworks-nav-fill
+    title: Filled chosen file
+    description: Mark the chosen file with a background instead of an accent underline
     type: class-toggle
 
 */
@@ -106,6 +167,7 @@ body {
   --h6-variant: all-small-caps;
   --h6-letter-spacing: 0.08em;
   --inline-title-size: 2.1em;
+  --heading-spacing: calc(var(--p-spacing) * var(--tryworks-heading-above, 2.5));
 
   /* Flat: depth is a lighter field inside a ruled mark, never a shadow. */
   --modal-shadow: none;
@@ -488,11 +550,54 @@ settings:
   font-variant-numeric: oldstyle-nums proportional-nums;
 }
 
+.tryworks-lining-figures .markdown-rendered,
+.tryworks-lining-figures .markdown-source-view.mod-cm6 .cm-scroller {
+  font-variant-numeric: lining-nums proportional-nums;
+}
+
 .markdown-rendered table,
 .markdown-rendered code,
 .markdown-source-view.mod-cm6 .cm-inline-code,
 .markdown-source-view.mod-cm6 .HyperMD-codeblock {
   font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Font choices (settings). The theme fonts only; Obsidian's own font
+   settings still win, because they replace --font-text. */
+body.tryworks-text-sans {
+  --font-text-theme: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body.tryworks-headings-serif,
+body.tryworks-headings-sans {
+  --h1-font: var(--tryworks-heading-face);
+  --h2-font: var(--tryworks-heading-face);
+  --h3-font: var(--tryworks-heading-face);
+  --h4-font: var(--tryworks-heading-face);
+  --h5-font: var(--tryworks-heading-face);
+  --h6-font: var(--tryworks-heading-face);
+  --inline-title-font: var(--tryworks-heading-face);
+}
+
+body.tryworks-headings-serif {
+  --tryworks-heading-face: literata, georgia, "Times New Roman", serif;
+}
+
+body.tryworks-headings-sans {
+  --tryworks-heading-face: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Headings: space below, so a large heading does not sit on its text.
+   Padding, not margin, in the editor. The editor's space above follows
+   the reading-view setting in proportion (Obsidian's default is one
+   paragraph space). */
+.markdown-rendered :is(h1, h2, h3, h4, h5, h6),
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-header {
+  padding-bottom: var(--tryworks-heading-below, 0.35em);
+}
+
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-header {
+  padding-top: calc(var(--p-spacing) * var(--tryworks-heading-above, 2.5) / 2.5);
 }
 
 /* Prose breaks evenly: no one-word last lines, balanced headings. */
@@ -513,11 +618,13 @@ settings:
 .markdown-source-view.mod-cm6 .cm-underline,
 .markdown-source-view.mod-cm6 .cm-hmd-internal-link .cm-underline {
   text-underline-offset: 0.2em;
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- Chromium in Obsidian supports it */
   text-decoration-color: color-mix(in oklch, currentcolor 45%, transparent);
 }
 
 .markdown-rendered a:hover,
 .markdown-source-view.mod-cm6 .cm-underline:hover {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- Chromium in Obsidian supports it */
   text-decoration-color: currentcolor;
 }
 
@@ -561,8 +668,9 @@ body:not(.tryworks-h2-plain) .markdown-source-view.mod-cm6 .HyperMD-header-2 {
   font-variant-numeric: lining-nums tabular-nums;
 }
 
-/* Callout titles in small capitals. */
-.callout-title-inner {
+/* Callout titles in small capitals. The setting tryworks-callout-plain
+   keeps them in normal letters. */
+body:not(.tryworks-callout-plain) .callout-title-inner {
   font-variant-caps: all-small-caps;
   letter-spacing: 0.06em;
   font-size: 1.05em;
@@ -572,16 +680,16 @@ body:not(.tryworks-h2-plain) .markdown-source-view.mod-cm6 .HyperMD-header-2 {
    line box centre that Obsidian aligns the icon and the fold arrow to.
    Move both down so their centre meets the centre of the capitals. A
    transform does not change the layout of the title. */
-.callout-icon,
-.callout-fold {
+body:not(.tryworks-callout-plain) .callout-icon,
+body:not(.tryworks-callout-plain) .callout-fold {
   transform: translateY(0.2em);
 }
 
 /* The icon and arrow are cut to the height of the small capitals, with a
    heavier stroke so their line matches the weight of the letters. The
    centre stays where the offset above puts it. */
-.callout-icon,
-.callout-fold {
+body:not(.tryworks-callout-plain) .callout-icon,
+body:not(.tryworks-callout-plain) .callout-fold {
   --icon-size: 0.66em;
   --icon-stroke: 3px;
 }
@@ -644,23 +752,30 @@ body:not(.tryworks-head-plain) .view-header-breadcrumb {
 }
 
 /* The chosen file, as the current page in the Tryworks navigation: ink,
-   weight 600 and a fine underline. No fill, no edge bar. */
-.tree-item-self.is-active .tree-item-inner {
+   weight 600 and a fine accent underline. No fill, no edge bar. The
+   setting tryworks-nav-fill puts Obsidian's fill back instead. */
+body:not(.tryworks-nav-fill) .tree-item-self.is-active .tree-item-inner {
   text-decoration: underline;
-  text-decoration-thickness: 1px;
   text-underline-offset: 0.3em;
+  /* stylelint-disable plugin/no-unsupported-browser-features -- Chromium in Obsidian supports both */
+  text-decoration-thickness: 1px;
   text-decoration-color: var(--color-accent);
+  /* stylelint-enable plugin/no-unsupported-browser-features */
+}
+
+body.tryworks-nav-fill {
+  --nav-item-background-active: var(--background-modifier-hover);
 }
 
 /* Folders: a small solid index mark in place of the chevron, as the
    pointer beside an entry in a printed index. Down when open; it turns
    to point at the name when closed. Search, outline and bookmarks share
-   the mark. */
-.tree-item-self .collapse-icon svg.svg-icon {
+   the mark. The setting tryworks-nav-chevrons keeps the chevrons. */
+body:not(.tryworks-nav-chevrons) .tree-item-self .collapse-icon svg.svg-icon {
   display: none;
 }
 
-.tree-item-self .collapse-icon::after {
+body:not(.tryworks-nav-chevrons) .tree-item-self .collapse-icon::after {
   content: "";
   width: 0;
   height: 0;
@@ -670,11 +785,11 @@ body:not(.tryworks-head-plain) .view-header-breadcrumb {
   transition: transform var(--anim-duration-fast, 0.1s) ease-out;
 }
 
-.tree-item-self .collapse-icon.is-collapsed::after {
+body:not(.tryworks-nav-chevrons) .tree-item-self .collapse-icon.is-collapsed::after {
   transform: rotate(-90deg);
 }
 
-.mod-rtl .tree-item-self .collapse-icon.is-collapsed::after {
+body.mod-rtl:not(.tryworks-nav-chevrons) .tree-item-self .collapse-icon.is-collapsed::after {
   transform: rotate(90deg);
 }
 
