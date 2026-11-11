@@ -147,7 +147,8 @@ body {
   --file-line-width: var(--tryworks-line-width, 46rem);
   --bold-modifier: 200;
 
-  /* Headings are roman, weight 500, set tight. */
+  /* Headings are roman, weight 500, set tight. The fifth level is the
+     italic, so it does not read as a bold line of text or as the fourth. */
   --h1-size: 1.9em;
   --h2-size: 1.55em;
   --h3-size: 1.2em;
@@ -158,7 +159,8 @@ body {
   --h2-weight: 500;
   --h3-weight: 600;
   --h4-weight: 600;
-  --h5-weight: 600;
+  --h5-weight: 500;
+  --h5-style: italic;
   --h6-weight: 400;
   --h1-line-height: 1.08;
   --h2-line-height: 1.18;
@@ -493,6 +495,7 @@ settings:
   --tryworks-plate-mark: #7d878e;
   --tryworks-sunk: #dfe3dc;
   --tryworks-accent-wash: color-mix(in oklch, var(--color-accent) 16%, var(--background-primary));
+  --tryworks-callout-wash: 13%;
   --tryworks-gamboge-wash: #f2e5c6;
   --tryworks-term-bg: #16202a;
   --tryworks-term-text: #e3e7e3;
@@ -517,6 +520,7 @@ settings:
   --tryworks-plate-mark: #66727c;
   --tryworks-sunk: #0d1115;
   --tryworks-accent-wash: color-mix(in oklch, var(--color-accent) 20%, var(--background-primary));
+  --tryworks-callout-wash: 16%;
   --tryworks-gamboge-wash: #3a3019;
   --tryworks-term-bg: #0b0f13;
   --tryworks-term-text: #e3e7e3;
@@ -692,6 +696,39 @@ body:not(.tryworks-callout-plain) .callout-icon,
 body:not(.tryworks-callout-plain) .callout-fold {
   --icon-size: 0.66em;
   --icon-stroke: 3px;
+}
+
+/* The callout ground is a wash of its colour, as strong as the accent
+   wash. Obsidian fixes it at 10 percent, which reads as grey on the plate
+   field. Same selector as Obsidian, later load. */
+.callout {
+  background-color: color-mix(in oklch, var(--callout-color) var(--tryworks-callout-wash, 10%), transparent);
+}
+
+/* A callout inside a callout is a clean wash on the plate field. With
+   Obsidian's blend mode the two washes mix to a grey-brown. */
+.callout .callout {
+  mix-blend-mode: normal;
+  background-color: color-mix(in oklch, var(--callout-color) var(--tryworks-callout-wash, 10%), var(--background-primary));
+}
+
+/* The last paragraph keeps no space below it, so the wash is as deep
+   under the text as above the title. */
+.callout-content > :last-child {
+  margin-block-end: 0;
+}
+
+/* In the editor Obsidian removes the space between callouts, because each
+   one is a line of its own there. In an embedded note they are not, and
+   they touch. Put the space back. */
+.markdown-source-view.mod-cm6 .markdown-embed .callout {
+  margin: 1em 0;
+}
+
+/* A quote is italic in the editor too. Obsidian reads the variable only
+   in reading view. */
+.markdown-source-view.mod-cm6 .cm-quote {
+  font-style: var(--blockquote-font-style);
 }
 
 /* Code blocks: the ink command block. The variables are scoped to the
@@ -965,6 +1002,29 @@ body {
   --setting-group-heading-color: var(--text-muted);
   --setting-group-heading-weight: 400;
   --search-result-background: var(--background-secondary);
+}
+
+/* Form rows in a plain modal (Add bookmark, rename, and others outside a
+   settings group) are ruled by their top line only. The border above gives
+   every row a box, because Obsidian resets only the top side. Same
+   selector as Obsidian, later load. */
+.modal:not(.mod-settings) .setting-item:not(.setting-item-heading):where(:not(.setting-group *)) {
+  border-width: var(--border-width) 0 0;
+}
+
+.modal:not(.mod-settings) .setting-item:not(.setting-item-heading):where(:not(.setting-group *)):first-child {
+  border-top-width: 0;
+}
+
+/* Obsidian draws no border on text fields on the phone, and the field fill
+   is the sheet colour, so a field is invisible. Give it the plate mark of
+   the dropdown beside it. The focus colour stays Obsidian's. */
+.is-mobile .modal {
+  --input-border-width: 1px;
+}
+
+.is-mobile .modal :is(input[type="text"], input[type="number"], input[type="email"], input[type="password"], textarea):not(:focus) {
+  border-color: var(--tryworks-plate-mark);
 }
 
 /* A sheet gets a fine mark on its top edge, the command palette on all
