@@ -24,6 +24,21 @@ The design follows [Tryworks](https://tryworks.tiagojacinto.eu) and [Sub-Sub](ht
 - Bases tables have no cell grid. Bases cards use serif titles and small-capital labels.
 - The command palette marks the chosen row with a 2px accent edge.
 - Four washes have one meaning each. Prussian blue is for links, focus and selection. Madder is for red callouts. Sap green is for checked items. Gamboge is for highlights and warnings.
+- Footnotes are set as on a printed page: a short rule, a smaller size, the numbers hanging in the margin. References in the text are lining figures in the accent.
+- Task boxes have their own marks for the common extra states: `[/]` in progress, `[-]` cancelled, `[>]` moved, `[?]` question, `[!]` important.
+- A PDF export breaks pages as a printed paper does: a heading stays with its text, figures and tables stay whole, links print in ink.
+
+## In your notes
+
+- Margin notes. A callout of type aside goes into the right margin in reading view when the pane is wide enough, and stays in the column when it is not. Put it before the paragraph it belongs to.
+
+  ```markdown
+  > [!aside] Source
+  > Adapted from the 2024 cohort report.
+  ```
+
+- Wide figures. Add `wide-figures` to the `cssclasses` property of a note. In reading view, its images and tables can then be up to 20rem wider than the text column, centred on it.
+- Image captions. With the setting on, the alt text of an embedded image shows as a caption: `![[plate.png|Plate 1. The caption]]`.
 
 ## Mobile
 
@@ -55,17 +70,24 @@ Select the scheme with the [Style Settings](https://github.com/obsidian-communit
 - Heading font: the text font, Literata or Atkinson Hyperlegible Next.
 - Space above and below headings.
 - Lining figures instead of oldstyle figures.
+- Justified and hyphenated text in reading view. Hyphenation follows the language of the Obsidian interface.
 - Reading mode: larger type, wider leading and a 36rem measure.
 - No rule above second-level headings.
 - Plain note header: the note path in the interface font.
 - Light code blocks instead of the ink command block.
 - Callout titles in normal letters instead of small capitals.
+- Image captions from the alt text.
+- Focus mode: in the editor, every paragraph but the one with the cursor fades.
+- Dark PDF pages in dark mode.
 - Chevrons on folders instead of the index marks.
 - A filled background on the chosen file instead of the accent underline.
+- Long names in the file explorer: one line, two lines or the full name.
+- Line icons for files and folders in the file explorer, with their own icons for PDF, canvas, base, image, audio and video files.
+- Top-level folders as section heads in small capitals.
 
 ## Accessibility
 
-Every text colour meets WCAG 2.1 AA contrast in both modes and both schemes. The focus outline is 2px in the accent colour. Animation respects the reduced-motion setting.
+Every text colour meets WCAG 2.1 AA contrast in both modes and both schemes. Focus mode is the one exception: it fades the other paragraphs on purpose, and it is off by default. The focus outline is 2px in the accent colour. Animation respects the reduced-motion setting.
 
 ## Fonts
 

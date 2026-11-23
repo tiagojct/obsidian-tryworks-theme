@@ -96,6 +96,10 @@ settings:
     title: Lining figures
     description: Figures at cap height in the text, in place of oldstyle figures
     type: class-toggle
+  - id: tryworks-justify
+    title: Justified text
+    description: Justify and hyphenate paragraphs and list items in reading view. Hyphenation follows the language of the Obsidian interface.
+    type: class-toggle
   - id: tryworks-reading
     title: Reading mode
     description: Larger type, wider leading and a 36rem measure, as in the Sub-Sub notes pane
@@ -121,6 +125,22 @@ settings:
     title: Plain callout titles
     description: Callout titles in normal letters instead of small capitals
     type: class-toggle
+  - id: tryworks-captions
+    title: Image captions
+    description: Show the alt text of an embedded image as a caption, as in ![[plate.png|Plate 1. The caption]]
+    type: class-toggle
+  - id: tryworks-focus
+    title: Focus mode
+    description: In the editor, fade every paragraph except the one with the cursor
+    type: class-toggle
+  - id: tryworks-pdf-dark
+    title: Dark PDF pages
+    description: In dark mode, show PDF pages as light text on a dark ground. Photographs in a PDF also change.
+    type: class-toggle
+  - id: tryworks-components-info
+    title: Margin notes and wide figures
+    description: "A callout of type aside (> [!aside]) goes into the right margin in reading view when the pane is wide enough. Put it before the paragraph it belongs to. The note property cssclasses: wide-figures lets images and tables in that note go wider than the text column, in reading view."
+    type: info-text
   - id: tryworks-navigation
     title: Navigation
     type: heading
@@ -133,6 +153,27 @@ settings:
   - id: tryworks-nav-fill
     title: Filled chosen file
     description: Mark the chosen file with a background instead of an accent underline
+    type: class-toggle
+  - id: tryworks-nav-names
+    title: Long names
+    description: How the file explorer shows a name that does not fit on one line
+    type: class-select
+    allowEmpty: false
+    default: tryworks-nav-one-line
+    options:
+      - label: One line, cut
+        value: tryworks-nav-one-line
+      - label: Two lines, cut
+        value: tryworks-nav-two-lines
+      - label: Full name
+        value: tryworks-nav-wrap
+  - id: tryworks-nav-icons
+    title: File and folder icons
+    description: Show a line icon before each name in the file explorer
+    type: class-toggle
+  - id: tryworks-nav-sections
+    title: Top-level folders as section heads
+    description: Set the folders at the top of the file explorer in small capitals, with space above, as the sections of an index
     type: class-toggle
 
 */
@@ -830,6 +871,101 @@ body.mod-rtl:not(.tryworks-nav-chevrons) .tree-item-self .collapse-icon.is-colla
   transform: rotate(90deg);
 }
 
+/* File and folder icons (setting tryworks-nav-icons): fine line marks in
+   the colour of the name, with square ends as the other marks of the
+   theme. The icon hangs in the start padding, so a wrapped name keeps
+   its indent. An open folder shows the open icon. */
+body.tryworks-nav-icons .nav-file-title-content,
+body.tryworks-nav-icons .nav-folder-title-content {
+  position: relative;
+  padding-inline-start: 1.5em;
+}
+
+body.tryworks-nav-icons .nav-file-title-content::before,
+body.tryworks-nav-icons .nav-folder-title-content::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  width: 1.05em;
+  height: calc(1em * var(--line-height-tight));
+  background-color: currentcolor;
+  opacity: var(--icon-opacity);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: 1.05em;
+  mask-image: url("data:image/svg+xml,<svg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M1.5 13.5V2.5H6L7.5 4H12.5V6.5M1.5 13.5L3.5 7H15L13 13.5Z' stroke='black' stroke-width='1.2' stroke-linecap='square'/></svg>");
+}
+
+body.tryworks-nav-icons .nav-folder.is-collapsed > .nav-folder-title > .nav-folder-title-content::before {
+  mask-image: url("data:image/svg+xml,<svg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M1.5 13.5V2.5H6L7.5 4H14.5V13.5Z' stroke='black' stroke-width='1.2' stroke-linecap='square'/></svg>");
+}
+
+body.tryworks-nav-icons .nav-file-title-content::before {
+  mask-image: url("data:image/svg+xml,<svg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M3 1.5H9.5L13 5V14.5H3Z M9.5 1.5V5H13' stroke='black' stroke-width='1.2' stroke-linecap='square'/></svg>");
+}
+
+/* Other file types get their own mark, chosen by the end of the path:
+   a PDF is a page with a printed band, a canvas two linked cards, a base
+   a ruled table, an image a framed landscape, audio a pair of notes and
+   video a frame with a play mark. The match ignores case (.JPG). */
+body.tryworks-nav-icons .nav-file-title[data-path$=".pdf" i] > .nav-file-title-content::before {
+  mask-image: url("data:image/svg+xml,<svg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M3 1.5H9.5L13 5V14.5H3Z M9.5 1.5V5H13' stroke='black' stroke-width='1.2' stroke-linecap='square'/><rect x='3' y='8.5' width='10' height='3.5' fill='black'/></svg>");
+}
+
+body.tryworks-nav-icons .nav-file-title[data-path$=".canvas" i] > .nav-file-title-content::before {
+  mask-image: url("data:image/svg+xml,<svg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M1.5 2.5H8.5V7.5H1.5Z M7.5 9.5H14.5V14.5H7.5Z M5 7.5V12H7.5' stroke='black' stroke-width='1.2' stroke-linecap='square'/></svg>");
+}
+
+body.tryworks-nav-icons .nav-file-title[data-path$=".base" i] > .nav-file-title-content::before {
+  mask-image: url("data:image/svg+xml,<svg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M1.5 2.5H14.5V13.5H1.5Z M1.5 6.5H14.5 M6 6.5V13.5' stroke='black' stroke-width='1.2' stroke-linecap='square'/></svg>");
+}
+
+body.tryworks-nav-icons .nav-file-title:is([data-path$=".png" i], [data-path$=".jpg" i], [data-path$=".jpeg" i], [data-path$=".gif" i], [data-path$=".bmp" i], [data-path$=".svg" i], [data-path$=".webp" i], [data-path$=".avif" i]) > .nav-file-title-content::before {
+  mask-image: url("data:image/svg+xml,<svg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M1.5 2.5H14.5V13.5H1.5Z M1.5 11L5.5 7L9 10.5L11 8.5L14.5 12' stroke='black' stroke-width='1.2' stroke-linecap='square'/><circle cx='10.5' cy='5.5' r='1.2' stroke='black' stroke-width='1.2'/></svg>");
+}
+
+body.tryworks-nav-icons .nav-file-title:is([data-path$=".mp3" i], [data-path$=".wav" i], [data-path$=".m4a" i], [data-path$=".3gp" i], [data-path$=".flac" i], [data-path$=".ogg" i], [data-path$=".oga" i], [data-path$=".opus" i]) > .nav-file-title-content::before {
+  mask-image: url("data:image/svg+xml,<svg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M6 12V3L13.5 1.5V10.5' stroke='black' stroke-width='1.2' stroke-linecap='square'/><circle cx='4.25' cy='12' r='1.75' stroke='black' stroke-width='1.2'/><circle cx='11.75' cy='10.5' r='1.75' stroke='black' stroke-width='1.2'/></svg>");
+}
+
+body.tryworks-nav-icons .nav-file-title:is([data-path$=".mp4" i], [data-path$=".webm" i], [data-path$=".ogv" i], [data-path$=".mov" i], [data-path$=".mkv" i]) > .nav-file-title-content::before {
+  mask-image: url("data:image/svg+xml,<svg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M1.5 3.5H14.5V12.5H1.5Z' stroke='black' stroke-width='1.2' stroke-linecap='square'/><path d='M6.5 5.5V10.5L10.5 8Z' fill='black'/></svg>");
+}
+
+/* Long names in the file explorer (setting tryworks-nav-names). Obsidian
+   keeps each name on one line and cuts it. Two lines wraps the name and
+   cuts it after the second line; Full name wraps it to the end. */
+body.tryworks-nav-two-lines,
+body.tryworks-nav-wrap {
+  --nav-item-white-space: normal;
+}
+
+body.tryworks-nav-two-lines .nav-file-title-content:not([contenteditable="true"]),
+body.tryworks-nav-two-lines .nav-folder-title-content:not([contenteditable="true"]) {
+  /* stylelint-disable value-no-vendor-prefix, property-no-vendor-prefix -- the only form of line clamp that Chromium supports */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  /* stylelint-enable value-no-vendor-prefix, property-no-vendor-prefix */
+}
+
+/* Top-level folders as section heads (setting tryworks-nav-sections):
+   small capitals in the text face, as the running head, with space above
+   each section. The space is padding: the list is virtual and starts with
+   a spacer, so a first-child rule misses and a margin is not measured. */
+body.tryworks-nav-sections .nav-files-container > div > .nav-folder > .nav-folder-title {
+  font-family: var(--font-text);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.08em;
+  font-size: calc(var(--nav-item-size) * 1.1);
+  color: var(--text-normal);
+}
+
+body.tryworks-nav-sections .nav-files-container > div > .nav-folder {
+  padding-block-start: 0.6em;
+}
+
 /* Bases cards: the specimen name in the text serif, as a plate title;
    property labels in small capitals. */
 .bases-cards-property.mod-title {
@@ -927,6 +1063,245 @@ body {
 
 .tryworks-reading {
   --file-line-width: 36rem;
+}
+
+/* Justified text (setting tryworks-justify): paragraphs and list items,
+   hyphenated by the language of the interface. Reading view only: the
+   editor keeps the spaces at a line break, so its lines cannot align. */
+body.tryworks-justify .markdown-preview-view :is(p, li) {
+  text-align: justify;
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- Chromium in Obsidian supports it */
+  hyphens: auto;
+}
+
+/* A caption keeps an even word space. */
+body.tryworks-justify .image-embed {
+  text-align: start;
+}
+
+/* Footnotes as the apparatus of a printed page: a short rule, the notes a
+   size smaller, the numbers hanging in the margin so the text of each
+   note starts at the edge of the column. The reference in the text is a
+   lining figure in the accent. */
+body {
+  --footnote-size: 0.86em;
+}
+
+.markdown-rendered .footnotes > hr {
+  width: 6rem;
+  margin-block: 2.5em 1em;
+  margin-inline: 0;
+  border-top-color: var(--text-muted);
+}
+
+.markdown-rendered .footnotes > ol {
+  line-height: 1.5;
+}
+
+.markdown-rendered .footnotes > ol > li {
+  margin-inline-start: 0;
+}
+
+.markdown-rendered .footnotes > ol > li::marker {
+  color: var(--text-muted);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.markdown-rendered .footnote-ref > .footnote-link {
+  color: var(--text-accent);
+  font-variant-numeric: lining-nums;
+}
+
+.markdown-rendered .footnote-backref {
+  font-size: 0.85em;
+}
+
+.is-phone .markdown-rendered .footnotes > ol > li {
+  margin-inline-start: 1.4em;
+}
+
+/* Task states. The checked box is sap green; the other states that many
+   vaults use get a mark of their own, drawn as the other marks of the
+   theme. The washes keep their meaning: [/] in progress is half filled
+   in gamboge, [!] important is madder, [-] cancelled is faint and
+   struck, [>] moved and [?] question are ink. Each task sets its own
+   values, so a nested task does not take its parent's. */
+.markdown-rendered li.task-list-item,
+.markdown-source-view.mod-cm6 .HyperMD-task-line {
+  --tryworks-task-color: var(--checkbox-color);
+  --tryworks-task-fill: var(--tryworks-task-color);
+  --tryworks-task-mark: none;
+}
+
+.markdown-rendered li[data-task="/"],
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="/"] {
+  --tryworks-task-color: var(--color-yellow);
+  --tryworks-task-fill: linear-gradient(to top right, var(--tryworks-task-color) 50%, transparent 50%);
+
+  /* An empty mask: the half fill is the mark. */
+  --tryworks-task-mark: linear-gradient(transparent, transparent);
+}
+
+.markdown-rendered li[data-task="-"],
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="-"] {
+  --tryworks-task-color: var(--text-faint);
+  --tryworks-task-mark: url("data:image/svg+xml,<svg viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M3 6H9' stroke='black' stroke-width='1.8' stroke-linecap='square'/></svg>");
+
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.markdown-rendered li[data-task=">"],
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task=">"] {
+  --tryworks-task-color: var(--text-muted);
+  --tryworks-task-mark: url("data:image/svg+xml,<svg viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M2.5 6H9 M6.2 3.2L9 6L6.2 8.8' stroke='black' stroke-width='1.6' stroke-linecap='square'/></svg>");
+}
+
+.markdown-rendered li[data-task="?"],
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="?"] {
+  --tryworks-task-color: var(--text-muted);
+  --tryworks-task-mark: url("data:image/svg+xml,<svg viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M4.2 4.3C4.2 3.1 5 2.4 6 2.4S7.8 3.1 7.8 4.2C7.8 5.5 6 5.6 6 7.1' stroke='black' stroke-width='1.5' stroke-linecap='square'/><rect x='5.2' y='8.6' width='1.6' height='1.6' fill='black'/></svg>");
+}
+
+.markdown-rendered li[data-task="!"],
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="!"] {
+  --tryworks-task-color: var(--color-red);
+  --tryworks-task-mark: url("data:image/svg+xml,<svg viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M6 2.4V6.8' stroke='black' stroke-width='1.7' stroke-linecap='square'/><rect x='5.15' y='8.6' width='1.7' height='1.7' fill='black'/></svg>");
+}
+
+.markdown-rendered li:is([data-task="/"], [data-task="-"], [data-task=">"], [data-task="?"], [data-task="!"]) > .task-list-item-checkbox,
+.markdown-rendered li:is([data-task="/"], [data-task="-"], [data-task=">"], [data-task="?"], [data-task="!"]) > p > .task-list-item-checkbox,
+.markdown-source-view.mod-cm6 .HyperMD-task-line:is([data-task="/"], [data-task="-"], [data-task=">"], [data-task="?"], [data-task="!"]) .task-list-item-checkbox {
+  background: var(--tryworks-task-fill);
+  border-color: var(--tryworks-task-color);
+}
+
+.markdown-rendered li:is([data-task="/"], [data-task="-"], [data-task=">"], [data-task="?"], [data-task="!"]) > .task-list-item-checkbox::after,
+.markdown-rendered li:is([data-task="/"], [data-task="-"], [data-task=">"], [data-task="?"], [data-task="!"]) > p > .task-list-item-checkbox::after,
+.markdown-source-view.mod-cm6 .HyperMD-task-line:is([data-task="/"], [data-task="-"], [data-task=">"], [data-task="?"], [data-task="!"]) .task-list-item-checkbox::after {
+  mask-image: var(--tryworks-task-mark);
+  mask-size: 100%;
+  mask-position: center;
+}
+
+/* Image captions (setting tryworks-captions): the alt text of an embedded
+   image, set small and muted under the plate. Obsidian puts the file name
+   in the alt text when there is none, so a name that ends in an image
+   extension gets no caption. */
+body.tryworks-captions .image-embed[alt]:not([alt=""], [alt$=".png" i], [alt$=".jpg" i], [alt$=".jpeg" i], [alt$=".gif" i], [alt$=".bmp" i], [alt$=".svg" i], [alt$=".webp" i], [alt$=".avif" i])::after {
+  content: attr(alt);
+  display: block;
+  max-width: var(--file-line-width);
+  margin-block-start: 0.5em;
+  color: var(--text-muted);
+  font-family: var(--font-text);
+  font-size: 0.86em;
+  line-height: 1.45;
+  text-wrap: pretty;
+  white-space: normal;
+}
+
+/* In the editor the embed is a flex row; the caption takes a line of its
+   own under the image. */
+body.tryworks-captions .markdown-source-view.mod-cm6 .image-embed[alt] {
+  flex-wrap: wrap;
+}
+
+body.tryworks-captions .markdown-source-view.mod-cm6 .image-embed[alt]::after {
+  flex-basis: 100%;
+}
+
+/* Margin notes. A callout of type aside is a quiet note: no wash, a fine
+   rule, smaller muted text, no icon. In reading view, when the pane has
+   room beside the text column, it moves into the right margin, level
+   with the paragraph after it. The main reading view is the container
+   that measures the room. */
+.callout[data-callout="aside"] {
+  --callout-color: var(--text-muted);
+  --callout-border-width: 0 0 0 1px;
+
+  background-color: transparent;
+  border-color: var(--tryworks-plate-mark);
+  color: var(--text-muted);
+  font-size: 0.88em;
+  line-height: 1.5;
+}
+
+.callout[data-callout="aside"] .callout-icon {
+  display: none;
+}
+
+.markdown-reading-view > .markdown-preview-view.is-readable-line-width {
+  container: tryworks-page / inline-size;
+}
+
+@container tryworks-page (min-width: 72rem) {
+  .markdown-preview-sizer > .el-div > .callout[data-callout="aside"] {
+    --tryworks-aside-width: clamp(10rem, (100cqi - var(--file-line-width)) / 2 - 3rem, 16rem);
+
+    float: inline-end;
+    clear: inline-end;
+    width: var(--tryworks-aside-width);
+    margin-block: 0.25em 1em;
+    margin-inline: 0 calc(-1 * var(--tryworks-aside-width) - 2.5rem);
+    padding: 0.5em 0 0;
+    border-width: 1px 0 0;
+    font-size: 0.82em;
+  }
+
+  .markdown-preview-sizer > .el-div > .callout[data-callout="aside"] .callout-title {
+    padding: 0 0 0.2em;
+  }
+
+  .markdown-preview-sizer > .el-div > .callout[data-callout="aside"] .callout-content {
+    padding: 0;
+  }
+
+  .markdown-preview-sizer > .el-div > .callout[data-callout="aside"] .callout-content > :first-child {
+    margin-block-start: 0.25em;
+  }
+}
+
+/* Wide figures (cssclasses: wide-figures): in reading view, images and
+   tables of that note may be wider than the text column, centred on it,
+   up to 20rem wider or the width of the pane. Small figures stay their
+   size and are centred, as plates in a book. */
+.wide-figures .markdown-preview-sizer {
+  --tryworks-figure-width: max(100%, min(100cqi - 4rem, var(--file-line-width) + 20rem));
+}
+
+.wide-figures .markdown-preview-sizer > .el-table,
+.wide-figures .markdown-preview-sizer > .el-p > p > .image-embed:only-child {
+  display: block;
+  margin-inline: calc((100% - var(--tryworks-figure-width)) / 2);
+}
+
+.wide-figures .markdown-preview-sizer > .el-table > table {
+  margin-inline: auto;
+}
+
+.wide-figures .markdown-preview-sizer > .el-p > p > .image-embed:only-child {
+  text-align: center;
+}
+
+.wide-figures .markdown-preview-sizer > .el-p > p > .image-embed:only-child::after {
+  margin-inline: auto;
+}
+
+/* Focus mode (setting tryworks-focus): while the editor has the cursor,
+   every line but the one with the cursor fades. */
+body.tryworks-focus .markdown-source-view.mod-cm6 .cm-editor.cm-focused .cm-content > :not(.cm-active) {
+  opacity: 0.4;
+  transition: opacity var(--anim-duration-moderate) ease-out;
+}
+
+/* Dark PDF pages (setting tryworks-pdf-dark): in dark mode, the rendered
+   page is inverted and its hues turned back, so text is light on a dark
+   ground. The filter is on the canvas, not its wrapper, so the plate
+   mark around the page keeps its colour. Obsidian's own themed mode,
+   where present, wins. */
+.theme-dark.tryworks-pdf-dark .pdf-container:not(.mod-themed) :is(.canvasWrapper > canvas, .thumbnailImage) {
+  filter: invert(0.9) hue-rotate(180deg);
 }
 
 /* stylelint-enable selector-class-pattern */
@@ -1113,6 +1488,42 @@ body {
     --text-faint: #5d6870;
 
     color: var(--text-normal);
+  }
+
+  /* Pages break as in a printed paper: a heading stays with its text, a
+     figure, table, code block or callout stays whole, no line is left
+     alone at the top or the foot of a page. Chromium supports the break
+     properties between pages, which is all that print needs. */
+  /* stylelint-disable plugin/no-unsupported-browser-features */
+  .print .markdown-rendered :is(h1, h2, h3, h4, h5, h6) {
+    break-after: avoid;
+  }
+
+  .print .markdown-rendered :is(pre, table, .callout, .image-embed, blockquote) {
+    break-inside: avoid;
+  }
+  /* stylelint-enable plugin/no-unsupported-browser-features */
+
+  .print .markdown-rendered :is(p, li) {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Links print in ink with the fine underline; the colour means nothing
+     on paper. Footnotes keep the short rule and lose the return arrows. */
+  .print .markdown-rendered :is(a, .footnote-ref > .footnote-link) {
+    color: inherit;
+  }
+
+  .print .markdown-rendered .footnote-backref {
+    display: none;
+  }
+
+  /* No margin on paper: a margin note prints in the column. */
+  .print .callout[data-callout="aside"] {
+    float: none;
+    width: auto;
+    margin: 1em 0;
   }
 }
 
