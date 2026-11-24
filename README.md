@@ -30,14 +30,14 @@ The design follows [Tryworks](https://tryworks.tiagojacinto.eu) and [Sub-Sub](ht
 
 ## In your notes
 
-- Margin notes. A callout of type aside goes into the right margin in reading view when the pane is wide enough, and stays in the column when it is not. Put it before the paragraph it belongs to.
+- Margin notes. A callout of type aside goes into the right margin in reading view when the pane is wide enough, and stays in the column when it is not. With a wide line width, part of it stands in the column and the text wraps around it. Put it before the paragraph it belongs to.
 
   ```markdown
   > [!aside] Source
   > Adapted from the 2024 cohort report.
   ```
 
-- Wide figures. Add `wide-figures` to the `cssclasses` property of a note. In reading view, its images and tables can then be up to 20rem wider than the text column, centred on it.
+- Wide figures. Add `wide-figures` to the `cssclasses` property of a note. In reading view, its images and tables can then be up to 20rem wider than the text column, centred on it. This needs Obsidian's readable line length. Give each figure its own paragraph: an image inside a sentence is also set as a figure.
 - Image captions. With the setting on, the alt text of an embedded image shows as a caption: `![[plate.png|Plate 1. The caption]]`.
 
 ## Mobile
@@ -71,7 +71,7 @@ Select the scheme with the [Style Settings](https://github.com/obsidian-communit
 - Space above and below headings.
 - Lining figures instead of oldstyle figures.
 - Justified and hyphenated text in reading view. Hyphenation follows the language of the Obsidian interface.
-- Reading mode: larger type, wider leading and a 36rem measure.
+- Reading mode: type at 1.2 times the text size, wider leading and a 36rem measure.
 - No rule above second-level headings.
 - Plain note header: the note path in the interface font.
 - Light code blocks instead of the ink command block.
@@ -87,13 +87,13 @@ Select the scheme with the [Style Settings](https://github.com/obsidian-communit
 
 ## Accessibility
 
-Every text colour meets WCAG 2.1 AA contrast in both modes and both schemes. Focus mode is the one exception: it fades the other paragraphs on purpose, and it is off by default. The focus outline is 2px in the accent colour. Animation respects the reduced-motion setting.
+Text meets WCAG 2.1 AA contrast on the page and in the sidebars, in both modes and both schemes. Faint text on a hovered row is slightly lower in light mode (4.1:1 or more). Focus mode fades the other paragraphs on purpose; it is off by default. Keyboard focus shows as a ring in the accent colour on controls and on links in a note. Animation respects the reduced-motion setting.
 
 ## Fonts
 
 The fonts are embedded in `theme.css`, so they work offline and on every device. The theme makes no network calls.
 
-- Literata for text.
+- Literata for text, with simple arrows and comparison signs. Greek and other characters outside the Latin subset use the next font on your system.
 - Atkinson Hyperlegible Next for the interface.
 - Atkinson Hyperlegible Mono for code.
 

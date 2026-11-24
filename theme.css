@@ -212,7 +212,10 @@ body {
   --inline-title-size: 2.1em;
   --heading-spacing: calc(var(--p-spacing) * var(--tryworks-heading-above, 2.5));
 
-  /* Flat: depth is a lighter field inside a ruled mark, never a shadow. */
+  /* Flat: depth is a lighter field inside a ruled mark, never a shadow.
+     Obsidian puts --shadow-* in lists with a ring that marks a state. The
+     keyword none makes the whole list invalid, so this is an empty shadow. */
+  --tryworks-no-shadow: 0 0 0 0 transparent;
   --modal-shadow: none;
   --bases-kanban-card-shadow: 0 0 0 1px var(--background-modifier-border);
   --bases-kanban-card-shadow-hover: 0 0 0 1px var(--tryworks-plate-mark);
@@ -260,6 +263,10 @@ body {
   --tag-border-width: 0;
   --list-marker-color: var(--text-faint);
 
+  /* Faint text is the ink-faint of the design, one step darker than
+     Obsidian's choice, so it has 4.5:1 on the page and in the sidebars. */
+  --text-faint: var(--color-base-60);
+
   /* Done is struck in muted ink; the checked box is sap green. */
   --checklist-done-decoration: line-through;
   --checklist-done-color: var(--text-muted);
@@ -289,6 +296,10 @@ body {
   --footnote-id-delimiter: ".";
   --caret-color: var(--color-accent);
   --divider-color-hover: var(--color-accent);
+
+  /* Obsidian draws its focus rings and the edge of a focused field in this
+     colour. Its grey has 2:1 on the page; the accent has 5:1 or more. */
+  --background-modifier-border-focus: var(--color-accent);
 
   /* A fine rule under the note header (the running head, section 5). */
   --file-header-border: var(--border-width) solid var(--background-modifier-border);
@@ -532,13 +543,8 @@ settings:
    Values that change with the mode. Obsidian sets several of these under
    .theme-light and .theme-dark, so they must be set there too. */
 
-.theme-light {
-  --tryworks-plate-mark: #7d878e;
-  --tryworks-sunk: #dfe3dc;
-  --tryworks-accent-wash: color-mix(in oklch, var(--color-accent) 16%, var(--background-primary));
-  --tryworks-callout-wash: 13%;
-  --tryworks-gamboge-wash: #f2e5c6;
-  --tryworks-term-bg: #16202a;
+/* The ink command block is the same in both modes; its ground is not. */
+body {
   --tryworks-term-text: #e3e7e3;
   --tryworks-term-dim: #8e9aa1;
   --tryworks-term-acc: #86b4da;
@@ -547,11 +553,20 @@ settings:
   --tryworks-term-gamboge: #e2b45a;
   --tryworks-term-purple: #b4a2d8;
   --tryworks-term-cyan: #7fbcb5;
+}
+
+.theme-light {
+  --tryworks-plate-mark: #7d878e;
+  --tryworks-sunk: #dfe3dc;
+  --tryworks-accent-wash: color-mix(in oklch, var(--color-accent) 16%, var(--background-primary));
+  --tryworks-callout-wash: 13%;
+  --tryworks-gamboge-wash: #f2e5c6;
+  --tryworks-term-bg: #16202a;
   --background-modifier-cover: color-mix(in oklch, #16202a 50%, transparent);
   --highlight-background: var(--tryworks-gamboge-wash);
-  --shadow-xs: none;
-  --shadow-s: none;
-  --shadow-l: none;
+  --shadow-xs: var(--tryworks-no-shadow);
+  --shadow-s: var(--tryworks-no-shadow);
+  --shadow-l: var(--tryworks-no-shadow);
   --text-selection: color-mix(in oklch, var(--color-accent) 20%, transparent);
   --code-background: var(--tryworks-sunk);
   --highlight-mix-blend-mode: multiply;
@@ -564,19 +579,11 @@ settings:
   --tryworks-callout-wash: 16%;
   --tryworks-gamboge-wash: #3a3019;
   --tryworks-term-bg: #0b0f13;
-  --tryworks-term-text: #e3e7e3;
-  --tryworks-term-dim: #8e9aa1;
-  --tryworks-term-acc: #86b4da;
-  --tryworks-term-add: #a3c078;
-  --tryworks-term-rem: #e6866d;
-  --tryworks-term-gamboge: #e2b45a;
-  --tryworks-term-purple: #b4a2d8;
-  --tryworks-term-cyan: #7fbcb5;
   --background-modifier-cover: color-mix(in oklch, #0b0f13 60%, transparent);
   --highlight-background: var(--tryworks-gamboge-wash);
-  --shadow-xs: none;
-  --shadow-s: none;
-  --shadow-l: none;
+  --shadow-xs: var(--tryworks-no-shadow);
+  --shadow-s: var(--tryworks-no-shadow);
+  --shadow-l: var(--tryworks-no-shadow);
   --text-selection: color-mix(in oklch, var(--color-accent) 30%, transparent);
   --code-background: var(--tryworks-sunk);
   --highlight-mix-blend-mode: normal;
@@ -822,6 +829,14 @@ body:not(.tryworks-head-plain) .view-header-title {
   font-weight: inherit;
 }
 
+/* Small capitals hide the case of the letters. While you rename the note
+   in the header, or a section head in the file explorer, the name is in
+   normal letters. */
+body:not(.tryworks-head-plain) .view-header-title:focus {
+  font-variant-caps: normal;
+  letter-spacing: normal;
+}
+
 /* Letter spacing also falls after the last letter, inside the hover box
    of each breadcrumb. Take it out of the end padding so the box sits even
    around the word. */
@@ -962,6 +977,11 @@ body.tryworks-nav-sections .nav-files-container > div > .nav-folder > .nav-folde
   color: var(--text-normal);
 }
 
+body.tryworks-nav-sections .nav-files-container > div > .nav-folder > .nav-folder-title.is-being-renamed {
+  font-variant-caps: normal;
+  letter-spacing: normal;
+}
+
 body.tryworks-nav-sections .nav-files-container > div > .nav-folder {
   padding-block-start: 0.6em;
 }
@@ -993,6 +1013,17 @@ body.tryworks-nav-sections .nav-files-container > div > .nav-folder {
   --metadata-border-color: var(--tryworks-plate-mark);
 
   transform: none;
+}
+
+/* Small capitals, as the callout titles, for the Properties heading and
+   the group titles in Settings. Literata has the real small capitals. */
+.metadata-properties-title,
+.vertical-tab-header-group-title,
+.setting-item-heading .setting-item-name {
+  font-family: var(--font-text);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.08em;
+  font-weight: 400;
 }
 
 /* Bases: a table as in a printed paper. Heavy ink rules above and below,
@@ -1044,21 +1075,46 @@ body {
   box-shadow: inset 2px 0 0 0 var(--color-accent);
 }
 
+.mod-rtl .suggestion-item.is-selected {
+  box-shadow: inset -2px 0 0 0 var(--color-accent);
+}
+
+.mod-rtl {
+  --callout-border-width: 0 2px 0 0;
+}
+
 .search-input-clear-button::after {
   mask-image: url("data:image/svg+xml,<svg viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M2 2L10 10M10 2L2 10' stroke='black' stroke-width='1.6' stroke-linecap='square'/></svg>");
 }
 
-/* Focus: a 2px accent outline on every surface. */
-:focus-visible {
-  outline-color: var(--color-accent);
+/* Focus: Obsidian rings its controls in --background-modifier-border-focus
+   (section 2). It gives a link in a note no mark at all. */
+.markdown-rendered a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
-/* Reading mode (setting): 1.2em type, 1.9 leading, 36rem measure. */
-.tryworks-reading .markdown-rendered,
-.tryworks-reading .markdown-source-view.mod-cm6 .cm-content {
-  font-size: 1.12em;
-  line-height: 1.9;
+/* Reading mode (setting): 1.2 times the text size, 1.9 leading, 36rem
+   measure. The size goes on the views that set Obsidian's own text size,
+   in absolute terms: an em on .markdown-rendered grows again in each embed,
+   and in the tables and callouts of the editor. */
+.tryworks-reading .markdown-source-view,
+.tryworks-reading .markdown-preview-view {
+  --line-height-normal: 1.9;
+  --table-text-size: calc(var(--font-preferred-size) * 1.2);
+  --table-header-size: var(--table-text-size);
+
+  font-size: calc(var(--font-preferred-size) * 1.2);
   word-spacing: 0.06em;
+}
+
+/* Properties are a label, not text: they keep their size and leading. */
+.tryworks-reading .metadata-container {
+  --line-height-normal: 1.6;
+
+  font-size: var(--font-preferred-size);
+  line-height: 1.6;
+  word-spacing: normal;
 }
 
 .tryworks-reading {
@@ -1187,8 +1243,9 @@ body {
 /* Image captions (setting tryworks-captions): the alt text of an embedded
    image, set small and muted under the plate. Obsidian puts the file name
    in the alt text when there is none, so a name that ends in an image
-   extension gets no caption. */
-body.tryworks-captions .image-embed[alt]:not([alt=""], [alt$=".png" i], [alt$=".jpg" i], [alt$=".jpeg" i], [alt$=".gif" i], [alt$=".bmp" i], [alt$=".svg" i], [alt$=".webp" i], [alt$=".avif" i])::after {
+   extension gets no caption. A subpath (![[plate.png#right]]) becomes
+   "plate.png > right" in the alt text, which gets none either. */
+body.tryworks-captions .image-embed[alt]:not([alt=""], [alt$=".png" i], [alt$=".jpg" i], [alt$=".jpeg" i], [alt$=".gif" i], [alt$=".bmp" i], [alt$=".svg" i], [alt$=".webp" i], [alt$=".avif" i], [alt*=".png > " i], [alt*=".jpg > " i], [alt*=".jpeg > " i], [alt*=".gif > " i], [alt*=".bmp > " i], [alt*=".svg > " i], [alt*=".webp > " i], [alt*=".avif > " i])::after {
   content: attr(alt);
   display: block;
   max-width: var(--file-line-width);
@@ -1215,11 +1272,14 @@ body.tryworks-captions .markdown-source-view.mod-cm6 .image-embed[alt]::after {
    rule, smaller muted text, no icon. In reading view, when the pane has
    room beside the text column, it moves into the right margin, level
    with the paragraph after it. The main reading view is the container
-   that measures the room. */
+   that measures the room. When the margin is narrower than the note, the
+   note stops at the edge of the pane and the text wraps around the part
+   that stands in the column. A note inside an embed stays in the embed. */
 .callout[data-callout="aside"] {
   --callout-color: var(--text-muted);
-  --callout-border-width: 0 0 0 1px;
 
+  border-width: 0;
+  border-inline-start-width: 1px;
   background-color: transparent;
   border-color: var(--tryworks-plate-mark);
   color: var(--text-muted);
@@ -1236,28 +1296,29 @@ body.tryworks-captions .markdown-source-view.mod-cm6 .image-embed[alt]::after {
 }
 
 @container tryworks-page (min-width: 72rem) {
-  .markdown-preview-sizer > .el-div > .callout[data-callout="aside"] {
-    --tryworks-aside-width: clamp(10rem, (100cqi - var(--file-line-width)) / 2 - 3rem, 16rem);
+  .markdown-reading-view > .markdown-preview-view > .markdown-preview-sizer > .el-div > .callout[data-callout="aside"] {
+    --tryworks-aside-room: max(0px, (100cqi - var(--file-line-width)) / 2);
+    --tryworks-aside-width: clamp(10rem, var(--tryworks-aside-room) - 3rem, 16rem);
 
     float: inline-end;
     clear: inline-end;
     width: var(--tryworks-aside-width);
     margin-block: 0.25em 1em;
-    margin-inline: 0 calc(-1 * var(--tryworks-aside-width) - 2.5rem);
+    margin-inline: 1.5rem calc(-1 * min(var(--tryworks-aside-width) + 2.5rem, var(--tryworks-aside-room)));
     padding: 0.5em 0 0;
     border-width: 1px 0 0;
     font-size: 0.82em;
   }
 
-  .markdown-preview-sizer > .el-div > .callout[data-callout="aside"] .callout-title {
+  .markdown-reading-view > .markdown-preview-view > .markdown-preview-sizer > .el-div > .callout[data-callout="aside"] .callout-title {
     padding: 0 0 0.2em;
   }
 
-  .markdown-preview-sizer > .el-div > .callout[data-callout="aside"] .callout-content {
+  .markdown-reading-view > .markdown-preview-view > .markdown-preview-sizer > .el-div > .callout[data-callout="aside"] .callout-content {
     padding: 0;
   }
 
-  .markdown-preview-sizer > .el-div > .callout[data-callout="aside"] .callout-content > :first-child {
+  .markdown-reading-view > .markdown-preview-view > .markdown-preview-sizer > .el-div > .callout[data-callout="aside"] .callout-content > :first-child {
     margin-block-start: 0.25em;
   }
 }
@@ -1265,26 +1326,31 @@ body.tryworks-captions .markdown-source-view.mod-cm6 .image-embed[alt]::after {
 /* Wide figures (cssclasses: wide-figures): in reading view, images and
    tables of that note may be wider than the text column, centred on it,
    up to 20rem wider or the width of the pane. Small figures stay their
-   size and are centred, as plates in a book. */
-.wide-figures .markdown-preview-sizer {
+   size and are centred, as plates in a book. Only the main reading view
+   with readable line width measures the pane (tryworks-page above):
+   Obsidian puts the class on embeds and hover previews too, and there
+   100cqi is the window. */
+.markdown-reading-view > .wide-figures.is-readable-line-width > .markdown-preview-sizer {
   --tryworks-figure-width: max(100%, min(100cqi - 4rem, var(--file-line-width) + 20rem));
 }
 
-.wide-figures .markdown-preview-sizer > .el-table,
-.wide-figures .markdown-preview-sizer > .el-p > p > .image-embed:only-child {
+.markdown-reading-view > .wide-figures.is-readable-line-width > .markdown-preview-sizer > .el-table,
+.markdown-reading-view > .wide-figures.is-readable-line-width > .markdown-preview-sizer > .el-p > p > .image-embed:only-child {
+  /* Below a margin note, not on it and not shifted by it. */
+  clear: inline-end;
   display: block;
   margin-inline: calc((100% - var(--tryworks-figure-width)) / 2);
 }
 
-.wide-figures .markdown-preview-sizer > .el-table > table {
+.markdown-reading-view > .wide-figures.is-readable-line-width > .markdown-preview-sizer > .el-table > table {
   margin-inline: auto;
 }
 
-.wide-figures .markdown-preview-sizer > .el-p > p > .image-embed:only-child {
+.markdown-reading-view > .wide-figures.is-readable-line-width > .markdown-preview-sizer > .el-p > p > .image-embed:only-child {
   text-align: center;
 }
 
-.wide-figures .markdown-preview-sizer > .el-p > p > .image-embed:only-child::after {
+.markdown-reading-view > .wide-figures.is-readable-line-width > .markdown-preview-sizer > .el-p > p > .image-embed:only-child::after {
   margin-inline: auto;
 }
 
@@ -1436,17 +1502,6 @@ body.tryworks-focus .markdown-source-view.mod-cm6 .cm-editor.cm-focused .cm-cont
   --slider-thumb-y: -11px;
 }
 
-/* Small capitals, as the callout titles, for the Properties heading and
-   the group titles in Settings. Literata has the real small capitals. */
-.metadata-properties-title,
-.vertical-tab-header-group-title,
-.setting-item-heading .setting-item-name {
-  font-family: var(--font-text);
-  font-variant-caps: all-small-caps;
-  letter-spacing: 0.08em;
-  font-weight: 400;
-}
-
 /* The editing toolbar fixes a radius from the touch size. */
 .mobile-toolbar-options-list-container,
 .mobile-toolbar-options-list,
@@ -1540,7 +1595,8 @@ body.tryworks-focus .markdown-source-view.mod-cm6 .cm-editor.cm-focused .cm-cont
 
 /* 8. Fonts ---------------------------------------------------------------
    Literata, Atkinson Hyperlegible Next and Atkinson Hyperlegible Mono,
-   Latin subset, SIL Open Font License 1.1. Generated from fonts/ by
+   Latin subset; Literata also has arrows and comparison signs. SIL Open
+   Font License 1.1. Generated from fonts/ by
    scripts/embed_fonts.py; do not edit by hand. */
 
 /* fonts:start */
@@ -1558,6 +1614,24 @@ body.tryworks-focus .markdown-source-view.mod-cm6 .cm-editor.cm-focused .cm-cont
   font-weight: 400 700;
   font-style: italic;
   font-display: swap;
+}
+
+@font-face {
+  font-family: Literata;
+  src: url("data:font/woff2;base64,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") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2030, U+2190-2193, U+2202, U+2211, U+221A, U+221E, U+2248, U+2260, U+2264-2265;
+}
+
+@font-face {
+  font-family: Literata;
+  src: url("data:font/woff2;base64,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") format("woff2");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+2030, U+2190-2193, U+2202, U+2211, U+221A, U+221E, U+2248, U+2260, U+2264-2265;
 }
 
 @font-face {

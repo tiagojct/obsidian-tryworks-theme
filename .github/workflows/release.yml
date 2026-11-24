@@ -1,8 +1,9 @@
 name: Release Obsidian theme
 
 # Push a tag that equals the version in manifest.json (for example 1.0.1).
-# The job checks the tag, lints theme.css with the rules the directory review
-# uses, attests the two files and creates a draft release with them.
+# The lint job checks the tag and theme.css with the rules the directory
+# review uses. It runs npm code, so it has read access only. The release job
+# runs no npm code: it attests the two files and makes a draft release.
 # Publish the draft on GitHub after adding release notes.
 
 on:
@@ -10,15 +11,17 @@ on:
     tags:
       - "*"
 
+permissions: {}
+
 jobs:
-  release:
+  lint:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      id-token: write
-      attestations: write
+      contents: read
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Check tag matches manifest version
         run: |
@@ -32,11 +35,21 @@ jobs:
 
       - name: Lint theme.css
         run: |
-          npm install --no-audit --no-fund
-          npx stylelint theme.css
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx --no-install stylelint theme.css
+
+  release:
+    needs: lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v7
 
       - name: Attest release files
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
             theme.css
